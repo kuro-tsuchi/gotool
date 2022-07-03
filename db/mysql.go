@@ -1,25 +1,31 @@
 package db
 
 import (
-	"github.com/doug-martin/goqu/v9"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/jmoiron/sqlx"
+	"golang2022/config"
+	"golang2022/module"
 	"log"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
-var MsqlDB *sqlx.DB
-var GoquDialect *goqu.Database
+func MysqlInit() {
+	conf := config.Conf
+	dsn := conf.Mysql.User + ":" + conf.Mysql.Password + "@tcp(" + conf.Mysql.Host + ":" + conf.Mysql.Port + ")/" + conf.Mysql.Database + "?charset=utf8&parseTime=True&loc=Local"
 
-func MysqlInit() *sqlx.DB {
-	var err error
-	MsqlDB, err = sqlx.Connect("mysql", "root:root@(localhost:3306)/test")
+	// dsn := "user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true,
+		},
+	})
 	if err != nil {
-		log.Fatalln(err)
+		panic(err)
 	}
-	return MsqlDB
-}
+	var person module.Person
+	result := db.First(&person)
+	log.Printf("%+v", result)
+	log.Printf("%+v", person)
 
-func  DialectInit() *goqu.Database {
-	   GoquDialect =   goqu.New("mysql", MsqlDB)
-	   return  GoquDialect
 }

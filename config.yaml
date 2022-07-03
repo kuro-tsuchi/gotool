@@ -1,0 +1,10 @@
+server:
+  port: 9000
+
+
+mysql:
+  user: "root" 
+  password: "root"
+  host: "localhost"
+  port:	3306
+  database: "golang2022"
